@@ -16,9 +16,11 @@ var Button = React.createClass({
   render() {
     return (
       <TouchableHighlight style={styles.button} onPress={this.props.onPress} >
-        <Text style={styles.buttonTitle}>
+        <View><Text style={styles.buttonTitle}>
           {this.props.title}
         </Text>
+        <Text style={{fontSize: 8}}>{(new Date().getTime()).toString().slice(-5)}</Text>
+        </View>
       </TouchableHighlight>
     );
   }
@@ -30,7 +32,7 @@ const RNDLayoutIssue = React.createClass({
     return {
       lowIndex: 20,
       upIndex: 30,
-      controls: [],
+      indexes: [],
     };
   },
 
@@ -39,11 +41,12 @@ const RNDLayoutIssue = React.createClass({
   },
 
   _updateControl() {
-    var array = [];
+    var indexes = [];
     for (var i = this.state.lowIndex; i < this.state.upIndex; i++) {
-      array.push(<Button title={i}  key={i}/>)
+      indexes.push(i)
     }
-    this.setState({controls: array});
+    //LayoutAnimation.spring()
+    this.setState({indexes});
   },
 
   _add() {
@@ -56,17 +59,50 @@ const RNDLayoutIssue = React.createClass({
     this._updateControl();
   },
 
+  componentDidMount() {
+    var remove = j => {
+      setTimeout(() => {
+        this._remove();
+        if (j > 0) {
+          if (Math.random() > 0.5) {
+            add(j - 1)
+          } else {
+            remove(j - 1)
+          }
+        }
+      }, 1);
+    }
+    var add = j => {
+      setTimeout(() => {
+        this._add();
+        if (j > 0) {
+          if (Math.random() > 0.5) {
+            add(j - 1)
+          } else {
+            remove(j - 1)
+          }
+        }
+      }, 1);
+
+    }
+    remove(10)
+  },
 
   render() {
+
     return (
       <View style={styles.container}>
         <View style={{flexDirection: 'row', padding: 5}}>
           <Button title='+' onPress={this._add}/>
           <Button title='-' onPress={this._remove}/>
         </View>
+        <View><Text>Total buttons now: {this.state.indexes.length}</Text></View>
         <View style={{flexDirection: 'row', padding: 5}}>
-          {this.state.controls}
+          {this.state.indexes.map(i => <Button title={i} key={i} /> )}
         </View>
+        {<View>
+          {this.state.indexes.map(i => <Text key={i}>{i}</Text> )}
+        </View>}
       </View>
     );
   }
@@ -82,8 +118,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   button: {
-    width: 40,
-    height: 40,
+    opacity: 0.3,
+    width: 60,
+    height: 60,
     margin: 3,
     backgroundColor: '#15FCFF',
   },
